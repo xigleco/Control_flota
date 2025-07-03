@@ -4,7 +4,6 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import logoCompras from '/src/img/carrito-de-compras.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 // import logoList from '/src/img/List.png'
