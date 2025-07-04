@@ -8,6 +8,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGasPump } from "@fortawesome/free-solid-svg-icons";
 import { faGauge } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { supabase } from "../services/supabaseClient";
+import { bucketBaseUrl } from "../config"; // ajustá el path según dónde estés
 // import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 // import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 // import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
@@ -29,16 +31,32 @@ const Vehiculos = () => {
     imagen: "",
   });
 
-  useEffect(() => {
-    const datosGuardados = localStorage.getItem("vehiculos");
-    if (datosGuardados) {
-      setVehiculos(JSON.parse(datosGuardados));
+  const fetchVehiculos = async () => {
+    const { data, error } = await supabase
+      .from("vehiculos")
+      .select("*")
+      .order("created_at", { ascending: false }); // o usá otra columna si no tenés `creado_en`
+
+    if (error) {
+      console.error("Error al obtener vehículos:", error);
+    } else {
+      setVehiculos(data);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    localStorage.setItem("vehiculos", JSON.stringify(vehiculos));
-  }, [vehiculos]);
+    fetchVehiculos();
+  }, []);
+  // useEffect(() => {
+  //   const datosGuardados = localStorage.getItem("vehiculos");
+  //   if (datosGuardados) {
+  //     setVehiculos(JSON.parse(datosGuardados));
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   localStorage.setItem("vehiculos", JSON.stringify(vehiculos));
+  // }, [vehiculos]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -239,75 +257,80 @@ const Vehiculos = () => {
           </AnimatePresence>
 
           <ul style={{ listStyle: "none", padding: 0 }}>
-            {vehiculos.map((vehiculo) => (
-              <li
-                key={vehiculo.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "10px",
-                  borderBottom: "1px solid #ccc",
-                }}
-              >
-                <div class="container">
-                  <div class="row">
-                    <div class="col-sm" style={{ width: "25%" }}>
-                      <div>
-                        <strong>Numero:</strong> {vehiculo.numero}
+            {vehiculos.map((vehiculo) => {
+              const imagenUrl = `${bucketBaseUrl}${vehiculo.imagen_url}`;
+
+              return (
+                <li
+                  key={vehiculo.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px",
+                    borderBottom: "1px solid #ccc",
+                  }}
+                >
+                  <div className="container-fluid">
+                    <div className="row">
+                      <div className="col-sm" style={{ width: "25%" }}>
+                        <div>
+                          <strong>Numero:</strong> {vehiculo.numero}
+                        </div>
+                        <div>
+                          <strong>Marca:</strong> {vehiculo.marca}
+                        </div>
+                        <div>
+                          <strong>Modelo:</strong> {vehiculo.modelo}
+                        </div>
                       </div>
-                      <div>
-                        <strong>Marca:</strong> {vehiculo.marca}
+                      <div className="col-sm" style={{ width: "25%" }}>
+                        <div>
+                          <strong>Kilómetros:</strong> {vehiculo.km_actuales}
+                        </div>
+                        <div>
+                          <strong>Tipo:</strong> {vehiculo.tipo}
+                        </div>
+                        <div>
+                          <strong>Consumo:</strong> {vehiculo.Combustible}
+                        </div>
                       </div>
-                      <div>
-                        <strong>Modelo:</strong> {vehiculo.modelo}
+                      <div className="col-sm" style={{ width: "25%" }}>
+                        <img
+                          src={imagenUrl}
+                          alt={`${vehiculo.marca} ${vehiculo.modelo}`}
+                          style={{
+
+                            height: "100px",
+                            objectFit: "cover",
+                            borderRadius: "5px",
+                          }}
+                        />
                       </div>
-                    </div>
-                    <div class="col-sm" style={{ width: "25%" }}>
-                      <div>
-                        <strong>Kilómetros:</strong> {vehiculo.Kilometros}
-                      </div>
-                      <div>
-                        <strong>Tipo:</strong> {vehiculo.tipo}
-                      </div>
-                      <div>
-                        <strong>Consumo:</strong> {vehiculo.Combustible}
-                      </div>
-                    </div>
-                    <div class="col-sm" style={{ width: "25%" }}>
-                      <img
-                        src={vehiculo.imagen}
-                        alt={`${vehiculo.marca} ${vehiculo.modelo}`}
-                        style={{
-                          height: "100px",
-                          objectFit: "cover",
-                          borderRadius: "5px",
-                        }}
-                      />
-                    </div>
-                    <div
-                      className="d-flex justify-content-end align-items-center mt-auto"
-                      style={{ width: "25%" }}
-                    >
-                      <button
-                        className="btn btn-secondary"
-                        title={`Eliminar Vehiculo N-${vehiculo.id}`}
-                        onClick={() => {
-                          const confirmar = window.confirm(
-                            `¿Estás seguro de que querés eliminar el vehículo con ID ${vehiculo.id}?`
-                          );
-                          if (confirmar) {
-                            handleEliminarVehiculo(vehiculo.id); // Reemplazá esto con tu función real
-                          }
-                        }}
+                      <div
+                        className="d-flex justify-content-end align-items-center mt-auto"
+                        style={{ width: "25%" }}
                       >
-                        <FontAwesomeIcon icon={faTrash} size="lg" />
-                      </button>
+                        <button
+                          className="btn btn-secondary"
+                          title={`Eliminar Vehiculo N-${vehiculo.id}`}
+                          onClick={() => {
+                            const confirmar = window.confirm(
+                              `¿Estás seguro de que querés eliminar el vehículo con ID ${vehiculo.id}?`
+                            );
+                            if (confirmar) {
+                              handleEliminarVehiculo(vehiculo.id);
+                            }
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faTrash} size="lg" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </main>
       </div>

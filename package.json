@@ -12,6 +12,7 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@supabase/supabase-js": "^2.50.3",
     "ag-grid-community": "^33.3.2",
     "ag-grid-react": "^33.3.2",
     "bootstrap": "^5.3.7",
